@@ -12,7 +12,7 @@ random.seed(111)
 class Tree(object):
     """Recursive implementation of decision tree."""
 
-    def __init__(self, regression=False, criterion=None, n_classes=None):
+    def __init__(self, regression=False, criterion=None, n_classes=None, class_weights=None):
         self.regression = regression
         self.impurity = None
         self.threshold = None
@@ -21,6 +21,7 @@ class Tree(object):
         self.criterion = criterion
         self.loss = None
         self.n_classes = n_classes  # Only for classification
+        self.class_weights = class_weights  # Optional inverse-frequency weights for leaf values
 
         self.left_child = None
         self.right_child = None
@@ -101,7 +102,7 @@ class Tree(object):
             )
 
             # Grow left and right child
-            self.left_child = Tree(self.regression, self.criterion, self.n_classes)
+            self.left_child = Tree(self.regression, self.criterion, self.n_classes, self.class_weights)
             self.left_child._train(
                 left_X,
                 left_target,
@@ -111,7 +112,7 @@ class Tree(object):
                 minimum_gain,
             )
 
-            self.right_child = Tree(self.regression, self.criterion, self.n_classes)
+            self.right_child = Tree(self.regression, self.criterion, self.n_classes, self.class_weights)
             self.right_child._train(
                 right_X,
                 right_target,
@@ -185,10 +186,15 @@ class Tree(object):
                 self.outcome = np.mean(targets["y"])
             else:
                 # Probability for classification task
-                self.outcome = (
-                    np.bincount(targets["y"], minlength=self.n_classes)
-                    / targets["y"].shape[0]
-                )
+                if self.class_weights is not None:
+                    counts = np.bincount(targets["y"], minlength=len(self.class_weights)).astype(float)
+                    weighted = counts * self.class_weights
+                    self.outcome = weighted / weighted.sum()
+                else:
+                    self.outcome = (
+                        np.bincount(targets["y"], minlength=self.n_classes)
+                        / targets["y"].shape[0]
+                    )
 
     def predict_row(self, row):
         """Predict single row."""
