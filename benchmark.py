@@ -26,12 +26,12 @@ from mla.ensemble.variants import (
 DATA_PATH = "class_imbalance/"
 
 SELECTED = [
-    "dataset_312_scene.csv",        # IR ≈  4.6  — low imbalance
-    "dataset_1000_hypothyroid.csv", # IR ≈ 12.0  — moderate imbalance
-    "dataset_38_sick.csv",          # IR ≈ 15.3  — medium-high imbalance
-    "dataset_311_oil_spill.csv",    # IR ≈ 21.9  — high imbalance
-    "dataset_316_yeast_ml8.csv",    # IR ≈ 70.1  — very high imbalance
-    "dataset_1056_mc1.csv",         # IR ≈ 138.2 — extreme imbalance
+    "dataset_311_oil_spill.csv",    # n=  937, feats= 49 — fastest
+    "dataset_1000_hypothyroid.csv", # n=3 772, feats= 29
+    "dataset_38_sick.csv",          # n=3 772, feats= 29
+    "dataset_316_yeast_ml8.csv",    # n=2 417, feats=116
+    "dataset_312_scene.csv",        # n=2 407, feats=299 — high feature count
+    "dataset_1056_mc1.csv",         # n=9 466, feats= 38 — slowest
 ]
 N_ESTIMATORS = 20
 MAX_DEPTH = 10
