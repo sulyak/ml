@@ -9,7 +9,6 @@ Full run over all datasets:
 """
 
 import os
-import sys
 import numpy as np
 import pandas as pd
 from collections import Counter
@@ -25,6 +24,15 @@ from mla.ensemble.variants import (
 )
 
 DATA_PATH = "class_imbalance/"
+
+SELECTED = [
+    "dataset_312_scene.csv",        # IR ≈  4.6  — low imbalance
+    "dataset_1000_hypothyroid.csv", # IR ≈ 12.0  — moderate imbalance
+    "dataset_38_sick.csv",          # IR ≈ 15.3  — medium-high imbalance
+    "dataset_311_oil_spill.csv",    # IR ≈ 21.9  — high imbalance
+    "dataset_316_yeast_ml8.csv",    # IR ≈ 70.1  — very high imbalance
+    "dataset_1056_mc1.csv",         # IR ≈ 138.2 — extreme imbalance
+]
 N_ESTIMATORS = 20
 MAX_DEPTH = 10
 MIN_SAMPLES_SPLIT = 5
@@ -88,9 +96,7 @@ def load_dataset(filepath):
 
 def load_all_datasets(data_path=DATA_PATH):
     datasets = []
-    for fname in sorted(os.listdir(data_path)):
-        if not fname.endswith(".csv"):
-            continue
+    for fname in SELECTED:
         X, y = load_dataset(os.path.join(data_path, fname))
         datasets.append((X, y, fname.replace(".csv", "")))
     return datasets
@@ -186,8 +192,7 @@ def benchmark_combined(datasets=None):
 
 
 if __name__ == "__main__":
-    all_datasets = load_all_datasets()
-    datasets = all_datasets if "--all" in sys.argv else all_datasets[:1]
+    datasets = load_all_datasets()
 
     benchmark_baseline(datasets)
     benchmark_opt1(datasets)
