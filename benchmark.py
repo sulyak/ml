@@ -20,7 +20,7 @@ from sklearn.preprocessing import LabelEncoder
 from mla.ensemble.random_forest import RandomForestClassifier
 from mla.ensemble.variants import (
     BalancedBootstrapRF, WeightedEntropyRF, AdaptiveThresholdRF,
-    WeightedLeafRF, PerTreeUndersampledRF, CombinedRF,
+    WeightedLeafRF, CombinedRF,
 )
 
 DATA_PATH = "class_imbalance/"
@@ -30,10 +30,9 @@ SELECTED = [
     "dataset_1000_hypothyroid.csv", # n=3 772, feats= 29
     "dataset_38_sick.csv",          # n=3 772, feats= 29
     "dataset_316_yeast_ml8.csv",    # n=2 417, feats=116
-    "dataset_312_scene.csv",        # n=2 407, feats=299 — high feature count
     "dataset_1056_mc1.csv",         # n=9 466, feats= 38 — slowest
 ]
-N_ESTIMATORS = 20
+N_ESTIMATORS = 10
 MAX_DEPTH = 10
 MIN_SAMPLES_SPLIT = 5
 N_SPLITS = 5
@@ -54,9 +53,6 @@ def _opt3():
 
 def _opt4():
     return WeightedLeafRF(n_estimators=N_ESTIMATORS, max_depth=MAX_DEPTH, min_samples_split=MIN_SAMPLES_SPLIT)
-
-def _opt5():
-    return PerTreeUndersampledRF(n_estimators=N_ESTIMATORS, max_depth=MAX_DEPTH, min_samples_split=MIN_SAMPLES_SPLIT)
 
 def _combined():
     return CombinedRF(n_estimators=N_ESTIMATORS, max_depth=MAX_DEPTH, min_samples_split=MIN_SAMPLES_SPLIT)
@@ -179,12 +175,6 @@ def benchmark_opt4(datasets=None):
     return _run(_opt4, datasets, "Option 4 — Weighted Leaf")
 
 
-def benchmark_opt5(datasets=None):
-    if datasets is None:
-        datasets = load_all_datasets()
-    return _run(_opt5, datasets, "Option 5 — Per-Tree Undersampling")
-
-
 def benchmark_combined(datasets=None):
     if datasets is None:
         datasets = load_all_datasets()
@@ -197,7 +187,12 @@ if __name__ == "__main__":
     benchmark_baseline(datasets)
     benchmark_opt1(datasets)
     benchmark_opt2(datasets)
-    benchmark_opt3(datasets)
+
+    # Run Option 3 (Adaptive Threshold) only on the 5th dataset in the loaded list
+    if len(datasets) >= 5:
+        benchmark_opt3([datasets[4]])
+    else:
+        print("Less than 5 datasets loaded; skipping Option 3 restricted run")
+
     benchmark_opt4(datasets)
-    benchmark_opt5(datasets)
     benchmark_combined(datasets)
